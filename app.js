@@ -264,7 +264,6 @@ class integraAlarm extends Homey.App {
       Homey.app.log(" - payload: " + payload);
       parsePayload(payload);
       alarm.destroy();
-      Homey.app.log("HOI")
       return answer;
     });
     alarm.on('error', function(err) {

@@ -1,0 +1,83 @@
+{
+  "id": "org.myalarm.integra",
+  "version": "0.0.1",
+  "compatibility": ">=1.5.0",
+  "sdk": 2,
+  "name": {
+    "en": "Integra Alarm"
+  },
+  "description": {
+    "en": "Control your Satel Integra alarm via the ETHM-1 module"
+  },
+  "category": [
+    "security"
+  ],
+  "permissions": [],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Fokko Masselink",
+    "email": "dirkdedraak@gmail.com"
+  },
+  "settings": [
+     {
+         "title": "Satel Integra",
+         "subtitle": "ETHM-1 module"
+      }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "gotArmed",
+        "title": {
+          "en": "Alarm was armed"
+        }
+      },
+      {
+        "id": "gotDisarmed",
+        "title": {
+          "en": "Alarm was disarmed"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "id": "is_armed",
+        "title": {
+          "en": "Alarm !{{is|isn't}} armed"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "arm",
+        "title": {
+          "en": "Arm"
+        }
+      },
+      {
+        "id": "disarm",
+        "title": {
+          "en": "Disarm"
+        }
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "my_driver",
+      "class": "homealarm",
+      "capabilities": [ "onoff" ],
+      "name": {
+          "en": "Satel Integra Driver",
+          "nl": "Satel Integra Driver"
+      },
+      "images": {
+          "large": "/drivers/my_driver/assets/images/large.png",
+          "small": "/drivers/my_driver/assets/images/small.png"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+    <head>
+
+        <!-- The '/homey.js' script must be included in your settings view to work -->
+        <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+
+    </head>
+    <body>
+
+        <h1 data-i18n="settings.title">
+            <!--
+            This field will automatically be filled by a translated string with key 'settings.title'.
+            Read more about translations at Internationalization.
+            -->
+        </h1>
+        <p data-i18n="settings.intro">
+            <!--
+            This field will also be translated
+            -->
+        </p>
+
+        <fieldset>
+          <legend>ETHM-1 module settings</legend>
+
+          <div class="field row">
+            <label for="ipaddress">IP Address</label>
+            <input id="ipaddress" type="text" value="" />
+          </div>
+          <div class="field row">
+            <label for="ipport">IP Port number</label>
+            <input id="ipport" type="text" value="" /> (default: 7094)
+          </div>
+          <div class="field row">
+            <label for="type">Type</label>
+            <input id="type" type="text" value="" />
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>General alarm settings</legend>
+          <div class="field row">
+            <label for="code">Security code</label>
+            <input id="code" type="password" value="" />
+          </div>
+        </fieldset>
+
+        <button id="save" class="right">Save changes</button>
+
+        <script type="text/javascript">
+
+        // a method named 'onHomeyReady' must be present in your code
+        function onHomeyReady( Homey ){
+
+            // Tell Homey we're ready to be displayed
+            Homey.ready();
+
+            var ipaddressElement = document.getElementById('ipaddress');
+            var ipportElement = document.getElementById('ipport');
+            var usercodeElement = document.getElementById('code');
+            var saveElement = document.getElementById('save');
+
+            Homey.get('ipaddress', function( err, ipaddress ) {
+               if( err ) return Homey.alert( err );
+               ipaddressElement.value = ipaddress;
+            });
+
+            Homey.get('ipport', function( err, ipport ) {
+               if( err ) return Homey.alert( err );
+               ipportElement.value = ipport;
+            });
+
+            Homey.get('code', function( err, code ) {
+               if( err ) return Homey.alert( err );
+               usercodeElement.value = code;
+            });
+
+            saveElement.addEventListener('click', function(e) {
+              Homey.set('ipaddress', ipaddressElement.value, function( err ){
+                  if( err ) return Homey.alert( err );
+              });
+              Homey.set('ipport', ipportElement.value, function( err ){
+                  if( err ) return Homey.alert( err );
+              });
+              Homey.set('code', usercodeElement.value, function( err ){
+                  if( err ) return Homey.alert( err );
+              });
+            });
+        }
+        </script>
+    </body>
+</html>

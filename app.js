@@ -82,33 +82,36 @@ function parsePayload(payload){
     let answer = payload.slice(1);
     // 1 byte for the alarm type
     switch(hex2dec(answer[0])){
-      case   0: integraAlarm.type = "Integra 24"; break;
-      case   1: integraAlarm.type = "Integra 32"; break;
-      case   2: integraAlarm.type = "Integra 64"; break;
-      case   3: integraAlarm.type = "Integra 128"; break;
-      case   4: integraAlarm.type = "INTEGRA 128-WRL SIM300"; break;
-      case  66: integraAlarm.type = "INTEGRA 64 PLUS"; break;
-      case  67: integraAlarm.type = "INTEGRA 128 PLUS"; break;
-      case  72: integraAlarm.type = "INTEGRA 256 PLUS"; break;
-      case 132: integraAlarm.type = "INTEGRA 128-WRL LEON"; break;
-      default: integraAlarm.type = "UNKNOWN Alarm type"; break;
-    }
-    // PLACEHOLDER to store this in settings and show in settings page
-    Homey.app.log("Type: " + integraAlarm.type);
-    // 11 bytes for the version
-    let version_array = byteArrayToDec(answer.slice(1,12));
-    var _r= function(p,c){return p.replace(/%s/,c);};
-    let version = version_array.reduce(_r, "%s.%s%s %s%s%s%s-%s%s-%s%s");
-    // PLACEHOLDER to store this in settings and show in settings page
-    Homey.app.log("Version: " + version);
-    // 1 byte for the language
-    let language = '?';
-    switch(hex2dec(answer[12])){
-      case 1: language = 'English'; break;
-      case 9: language = 'Dutch'; break;
-    }
-    // PLACEHOLDER to store this in settings and show in settings page
-    Homey.app.log("Language: " + language);
+      case   0: integraAlarm.alarmType = "Integra 24"; break;
+      case   1: integraAlarm.alarmType = "Integra 32"; break;
+      case   2: integraAlarm.alarmType = "Integra 64"; break;
+      case   3: integraAlarm.alarmType = "Integra 128"; break;
+      case   4: integraAlarm.alarmType = "INTEGRA 128-WRL SIM300"; break;
+      case  66: integraAlarm.alarmType = "INTEGRA 64 PLUS"; break;
+      case  67: integraAlarm.alarmType = "INTEGRA 128 PLUS"; break;
+      case  72: integraAlarm.alarmType = "INTEGRA 256 PLUS"; break;
+      case 132: integraAlarm.alarmType = "INTEGRA 128-WRL LEON"; break;
+      default: integraAlarm.alarmType = "UNKNOWN Alarm type"; break;
+      }
+      // PLACEHOLDER to store this in settings and show in settings page
+      Homey.app.log("Alarm Type: " + integraAlarm.alarmType);
+      Homey.ManagerSettings.set('alarmType', integraAlarm.alarmType);
+      // 11 bytes for the version
+      let version_array = byteArrayToDec(answer.slice(1,12));
+      var _r= function(p,c){return p.replace(/%s/,c);};
+      integraAlarm.alarmVers = version_array.reduce(_r, "%s.%s%s %s%s%s%s-%s%s-%s%s");
+      // PLACEHOLDER to store this in settings and show in settings page
+      Homey.app.log("Version: " + integraAlarm.alarmVers);
+      Homey.ManagerSettings.set('alarmVers', integraAlarm.alarmVers);
+      // 1 byte for the language
+      integraAlarm.alarmLang = '?';
+      switch(hex2dec(answer[12])){
+        case 1: integraAlarm.alarmLang = 'English'; break;
+        case 9: integraAlarm.alarmLang = 'Dutch'; break;
+      }
+      // PLACEHOLDER to store this in settings and show in settings page
+      Homey.app.log("Language: " + integraAlarm.alarmLang);
+      Homey.ManagerSettings.set('alarmLang', integraAlarm.alarmLang);
     }
 }
 
@@ -148,7 +151,6 @@ function verifyAnswer(answer){
 }
 
 class integraAlarm extends Homey.App {
-
   //	Frame structure
   //	[ 0xFE | 0xFE | cmd | d1 | d2 | ... | dn | crc.high | crc.low | 0xFE | 0x0D ]
 
@@ -158,20 +160,20 @@ class integraAlarm extends Homey.App {
     integraAlarm.ipaddress = Homey.ManagerSettings.get('ipaddress');
     integraAlarm.ipport    = Homey.ManagerSettings.get('ipport');
     if ( integraAlarm.ipport == null || integraAlarm.ipport == "")
-    integraAlarm.ipport = 7094;
+      integraAlarm.ipport = 7094;
     integraAlarm.usercode  = Homey.ManagerSettings.get('code');
 
-    integraAlarm.type = '';    // comes from 0x7E command
+    integraAlarm.alarmType = '';    // comes from 0x7E command
     integraAlarm.version = ''; // comes from 0x7E command
 
     Homey.app.log("Alarm accessible at: " + integraAlarm.ipaddress + " @ " + integraAlarm.ipport);
-    setTimeout(this.executeCommand,  1500, this.getCommand_ethminfo()); // read alarm info
+    setTimeout(this.executeCommand,  3000, this.getCommand_ethminfo()); // read alarm info
 //    setTimeout(this.executeCommand,  3000, this.getCommand_arm()); // arm alarm
 //    setTimeout(this.executeCommand,  5000, this.getCommand_armedzones()); // read armed zones
 //    setTimeout(this.executeCommand,  9000, this.getCommand_disarm()); // disarm alarm
 
     // monitor alarm status
-    this.logEvery2Seconds(0);
+    this.logEveryNSeconds(0);
 
     // register listener for ACTION "disarm" FlowCard
     let disarmAlarm = new Homey.FlowCardAction('disarm')
@@ -225,11 +227,11 @@ class integraAlarm extends Homey.App {
   // } // calculateFrameCrc
 
   // loop for continuously monitoring alarm state
-  logEvery2Seconds(i) {
+  logEveryNSeconds(i) {
       setTimeout(() => {
           Homey.app.log('*** Monitor alarm status:', i);
-          Homey.app.log(this.executeCommand(this.getCommand_armedzones()));
-          this.logEvery2Seconds(++i);
+          Homey.app.log('Armed zones: ', this.executeCommand(this.getCommand_armedzones()));
+          this.logEveryNSeconds(++i);
       }, 5000);
   }
 

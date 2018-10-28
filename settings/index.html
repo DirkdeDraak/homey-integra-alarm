@@ -25,21 +25,36 @@
 
           <div class="field row">
             <label for="ipaddress">IP Address</label>
-            <input id="ipaddress" type="text" value="" />
+            <input id="ipaddress" type="text" value="192.168.1.x" />
           </div>
           <div class="field row">
             <label for="ipport">IP Port number</label>
             <input id="ipport" type="text" value="" /> (default: 7094)
           </div>
+          <!--
           <div class="field row">
-            <label for="type">Type</label>
-            <input id="type" type="text" value="" />
+            <label for="pollinginterval">Polling interval (ms)</label>
+            <input id="pollinginterval" type="text" value="" /> (default: 5000)
           </div>
+          -->
         </fieldset>
         <fieldset>
           <legend>General alarm settings</legend>
           <div class="field row">
-            <label for="code">Security code</label>
+            <label for="alarmType">Recognized as</label>
+            <span id="alarmType"></div>
+          </div>
+          <div class="field row">
+            <label for="alarmVers">Integra version</label>
+            <span id="alarmVers"></div>
+          </div>
+          <div class="field row">
+            <label for="alarmLang">Language</label>
+            <span id="alarmLang"></div>
+          </div>
+
+          <div class="field row">
+            <label for="code">Security code<br />Arm/disarm code</label>
             <input id="code" type="password" value="" />
           </div>
         </fieldset>
@@ -50,28 +65,51 @@
 
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady( Homey ){
-
-            // Tell Homey we're ready to be displayed
-            Homey.ready();
-
             var ipaddressElement = document.getElementById('ipaddress');
-            var ipportElement = document.getElementById('ipport');
-            var usercodeElement = document.getElementById('code');
-            var saveElement = document.getElementById('save');
+            var ipportElement    = document.getElementById('ipport');
+            var usercodeElement  = document.getElementById('code');
+            var alarmtypeElement = document.getElementById('alarmType');
+            var alarmversElement = document.getElementById('alarmVers');
+            var alarmlangElement = document.getElementById('alarmLang');
+            var saveElement      = document.getElementById('save');
 
-            Homey.get('ipaddress', function( err, ipaddress ) {
+            Homey.get('ipaddress', function( err, data ) {
                if( err ) return Homey.alert( err );
-               ipaddressElement.value = ipaddress;
+               ipaddressElement.value = data;
             });
 
-            Homey.get('ipport', function( err, ipport ) {
+            Homey.get('ipport', function( err, data ) {
                if( err ) return Homey.alert( err );
-               ipportElement.value = ipport;
+               ipportElement.value = data;
             });
 
-            Homey.get('code', function( err, code ) {
+            Homey.get('code', function( err, data ) {
                if( err ) return Homey.alert( err );
-               usercodeElement.value = code;
+               usercodeElement.value = data;
+            });
+            Homey.get('alarmType', function( err, data ) {
+               if( err || data == null) {
+                 alarmtypeElement.textContent = "Could not connect/recognize your Integra alarm type."
+                 return Homey.alert( err );
+               } else {
+                 alarmtypeElement.textContent = data;
+               }
+            });
+            Homey.get('alarmVers', function( err, data ) {
+               if( err || data == null) {
+                 alarmversElement.textContent = "Could not connect/recognize your Integra alarm type."
+                 return Homey.alert( err );
+               } else {
+                 alarmversElement.textContent = data;
+               }
+            });
+            Homey.get('alarmLang', function( err, data ) {
+               if( err || data == null) {
+                 alarmlangElement.textContent = "Could not connect/recognize your Integra alarm type."
+                 return Homey.alert( err );
+               } else {
+                 alarmlangElement.textContent = data;
+               }
             });
 
             saveElement.addEventListener('click', function(e) {
@@ -84,7 +122,9 @@
               Homey.set('code', usercodeElement.value, function( err ){
                   if( err ) return Homey.alert( err );
               });
+              integraAlarm.onInit();
             });
+          Homey.ready();
         }
         </script>
     </body>

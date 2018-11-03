@@ -5,58 +5,31 @@
 
 'use strict';
 
+var debugEnabled = false;
+
 const Homey = require('homey');
 
 // decimal to hex conversion
 function dec2hex(i) {
   return (i+0x10000).toString(16).substr(-4).toUpperCase();
-}
+} // dec2hex
 
 function hex2dec(i) {
   return parseInt(i, 16);
-}
+} // hex2dec
 
 // hex to bin conversion
-// function hex2bin(hex) {
-//   return new Buffer(hex,'hex');
-// }
+function hex2bin(hex){
+    return (parseInt(hex, 16).toString(2)).padStart(8, '0');
+} // hex2bin
 
-// function hexlify(str){
-//   var result = '';
-//   var padding = '00';
-//   for (var i=0; i<str.length; i++ ){
-//   var digit = str.charCodeAt(i).toString(16);
-//   var padded = (padding+digit).slice(-2);
-//   result+=padded;
-//   }
-//   return result;
-// }
-
+// convert array of bytes to decimal numbers
 function byteArrayToDec(ary){
   for (var bytes = [], c = 0;c < ary.length; c += 1){
   bytes.push(String.fromCharCode("0x" + ary[c]));
   }
   return bytes;
-}
-
-// // Convert a hex string to a byte array
-// function hexToByteArray(hex) {
-//   // strip 0x prefix from hex value
-//   hex = hex.toString().replace('0x','');
-//   for (var bytes = [], c = 0; c < hex.length; c += 2){
-//   bytes.push(parseInt(hex.substr(c, 2), 16));
-//   }
-//   return bytes;
-// }
-
-// // Convert a byte array to a hex string
-// function byteArrayToHex(bytes) {
-//   for (var hex = [], i = 0; i < bytes.length; i++) {
-//   hex.push((bytes[i] >>> 4).toString(16));
-//   hex.push((bytes[i] & 0xF).toString(16));
-//   }
-//   return hex.join("").toUpperCase();
-// }
+} // byteArrayToDec
 
 // provide string, fill up to 'len' with 'fill' characters and divide into byte pairs
 function stringToHexBytes(str,len,fill){
@@ -67,65 +40,133 @@ function stringToHexBytes(str,len,fill){
     bytes.push(blk);
   }
   return bytes;
-}
+} // stringToHexBytes
 
-// function printHex(hex){
-//   return hex.toString().replace(/(.{2})/g,"$1 ");
-// }
+// compare two array to check if they have the same elements
+function compareArrays( arrA, arrB ){
+    //check if lengths are different
+    if(arrA.length !== arrB.length) return false;
+
+    //slice so we do not effect the orginal
+    //sort makes sure they are in order
+    var cA = arrA.slice().sort();
+    var cB = arrB.slice().sort();
+
+    for(var i=0;i<cA.length;i++){
+         if(cA[i]!==cB[i]) return false;
+    }
+    return true;
+} // compareArrays
 
 function parsePayload(payload){
   let cmd = payload[0];
-  Homey.app.log(" - command: " + cmd);
-
-  switch(cmd){ // check result field 3 for response code
+  let answer = payload.slice(1);
+  if ( debugEnabled ) {
+    Homey.app.log("   - command: " + cmd);
+    Homey.app.log("   - answer : " + answer);
+  }
+  switch(cmd){ // check payload field 1 to match command
     case "7E": // Integra version
-    let answer = payload.slice(1);
-    // 1 byte for the alarm type
-    switch(hex2dec(answer[0])){
-      case   0: integraAlarm.alarmType = "Integra 24"; break;
-      case   1: integraAlarm.alarmType = "Integra 32"; break;
-      case   2: integraAlarm.alarmType = "Integra 64"; break;
-      case   3: integraAlarm.alarmType = "Integra 128"; break;
-      case   4: integraAlarm.alarmType = "INTEGRA 128-WRL SIM300"; break;
-      case  66: integraAlarm.alarmType = "INTEGRA 64 PLUS"; break;
-      case  67: integraAlarm.alarmType = "INTEGRA 128 PLUS"; break;
-      case  72: integraAlarm.alarmType = "INTEGRA 256 PLUS"; break;
-      case 132: integraAlarm.alarmType = "INTEGRA 128-WRL LEON"; break;
-      default: integraAlarm.alarmType = "UNKNOWN Alarm type"; break;
-      }
-      // PLACEHOLDER to store this in settings and show in settings page
-      Homey.app.log("Alarm Type: " + integraAlarm.alarmType);
-      Homey.ManagerSettings.set('alarmType', integraAlarm.alarmType);
-      // 11 bytes for the version
-      let version_array = byteArrayToDec(answer.slice(1,12));
-      var _r= function(p,c){return p.replace(/%s/,c);};
-      integraAlarm.alarmVers = version_array.reduce(_r, "%s.%s%s %s%s%s%s-%s%s-%s%s");
-      // PLACEHOLDER to store this in settings and show in settings page
-      Homey.app.log("Version: " + integraAlarm.alarmVers);
-      Homey.ManagerSettings.set('alarmVers', integraAlarm.alarmVers);
-      // 1 byte for the language
-      integraAlarm.alarmLang = '?';
-      switch(hex2dec(answer[12])){
-        case 1: integraAlarm.alarmLang = 'English'; break;
-        case 9: integraAlarm.alarmLang = 'Dutch'; break;
-      }
-      // PLACEHOLDER to store this in settings and show in settings page
-      Homey.app.log("Language: " + integraAlarm.alarmLang);
-      Homey.ManagerSettings.set('alarmLang', integraAlarm.alarmLang);
+      // 1 byte for the alarm type
+      switch(hex2dec(answer[0])){
+        case   0: integraAlarm.alarmType = "Integra 24"; break;
+        case   1: integraAlarm.alarmType = "Integra 32"; break;
+        case   2: integraAlarm.alarmType = "Integra 64"; break;
+        case   3: integraAlarm.alarmType = "Integra 128"; break;
+        case   4: integraAlarm.alarmType = "INTEGRA 128-WRL SIM300"; break;
+        case  66: integraAlarm.alarmType = "INTEGRA 64 PLUS"; break;
+        case  67: integraAlarm.alarmType = "INTEGRA 128 PLUS"; break;
+        case  72: integraAlarm.alarmType = "INTEGRA 256 PLUS"; break;
+        case 132: integraAlarm.alarmType = "INTEGRA 128-WRL LEON"; break;
+        default: integraAlarm.alarmType = "UNKNOWN Alarm type"; break;
+        }
+        // PLACEHOLDER to store this in settings and show in settings page
+        if ( debugEnabled ) {
+          Homey.app.log("Alarm Type: " + integraAlarm.alarmType);
+        }
+        Homey.ManagerSettings.set('alarmType', integraAlarm.alarmType);
+        // 11 bytes for the version
+        let version_array = byteArrayToDec(answer.slice(1,12));
+        let r= function(p,c){return p.replace(/%s/,c);};
+        integraAlarm.alarmVers = version_array.reduce(r, "%s.%s%s %s%s%s%s-%s%s-%s%s");
+        // PLACEHOLDER to store this in settings and show in settings page
+        if ( debugEnabled ) {
+          Homey.app.log("Version: " + integraAlarm.alarmVers);
+        }
+        Homey.ManagerSettings.set('alarmVers', integraAlarm.alarmVers);
+        // 1 byte for the language
+        integraAlarm.alarmLang = '?';
+        switch(hex2dec(answer[12])){
+          case 1: integraAlarm.alarmLang = 'English'; break;
+          case 9: integraAlarm.alarmLang = 'Other / Dutch'; break;
+        }
+        // PLACEHOLDER to store this in settings and show in settings page
+        if ( debugEnabled ) {
+          Homey.app.log("Language: " + integraAlarm.alarmLang);
+        }
+        Homey.ManagerSettings.set('alarmLang', integraAlarm.alarmLang);
+        break;
+      case "0A":
+        // put code here to parse 4 byte answer for active blocks/zones.
+        // each byte is a HEX number, convert to binary and count positions
+        // starting from the end to find active partitions.
+        let activepartitions = [];
+        let firstrun = false;
+        if (integraAlarm.previousactivepartitions == undefined){
+          integraAlarm.previousactivepartitions = [];
+          firstrun = true;
+        }
+
+        let p = 0;
+        for (var plist of answer){
+          let binarray = Array.from(hex2bin(plist));
+          for (let i=binarray.length-1; i>=0; --i) {
+            p++;
+            if ( binarray[i] == 1){
+              activepartitions.push(p);
+            }
+          }
+        }
+        if ( firstrun ){
+          integraAlarm.previousactivepartitions = activepartitions;
+        }
+        if ( debugEnabled ) {
+          Homey.app.log(" - active partitions (now)   : " + activepartitions);
+          Homey.app.log(" - active partitions (before): " + integraAlarm.previousactivepartitions);
+        }
+        // check number of active partitions => determines current status
+        if (activepartitions.length == 0){
+          integraAlarm.conditionIsArmed = false;
+          if ( ! compareArrays(activepartitions, integraAlarm.previousactivepartitions) ){
+            // trigger ACTION triggerGotDisarmed
+            if ( debugEnabled ) {
+              Homey.app.log(" - Alarm was disarmed");
+            }
+            integraAlarm.triggerGotDisarmed.trigger(  ).then(  ).catch(  );
+             }
+        } else {
+          integraAlarm.conditionIsArmed = true;
+          if ( ! compareArrays(activepartitions, integraAlarm.previousactivepartitions) ){
+            // trigger ACTION triggerGotArmed
+            if ( debugEnabled ) {
+              Homey.app.log(" - Alarm was armed.");
+            }
+            integraAlarm.triggerGotArmed.trigger(  ).then(  ).catch(  );
+          }
+        }
+
+        // store for next loop
+        integraAlarm.previousactivepartitions = activepartitions;
+        break;
     }
-}
+} // parsePayload
 
 // calculate CRC for given cmd according to satel specifications
 // https://www.satel.pl/en/download/instrukcje/ethm1_op_pl_1.07.pdf
 function calcCRC(array){
-  if ( ! Array.isArray(array)){
-    Homey.app.log("Input must be array.");
-  }
   let crc = "0x147A";
   // loop over decimal version of hex
-//  Homey.app.log("Calculate CRC for: " + array);
   for (var b of array){
-//    Homey.app.log(" - crc-ing: " + b);
     // rotate 1 bit left
     crc = (( crc << 1 ) & 0xFFFF ) | ( crc & 0x8000 ) >> 15;
     // xOR with 0xFFFF
@@ -133,22 +174,21 @@ function calcCRC(array){
     // crc + crc.high + b
     crc = (crc + (crc >> 8) + parseInt(b,16)) & 0xFFFF;
   }
-//  Homey.app.log(" - crc is: " + crc);
   return dec2hex(crc).match(/.{2}/g); // return array
 } // calcCRC
 
 function ETHM1AnswerToArray(answer){
   return Buffer.from(answer.toString('binary'), 'ascii').toString('hex').toUpperCase().match(/.{2}/g);
-}
+} // ETHM1AnswerToArray
 
 function verifyAnswer(answer){
   let frmHdr = 'FE,FE';
   let frmFtr = 'FE,0D';
   if ( answer.slice(0,2).toString() == frmHdr &&
-  answer.slice(-2).toString() == frmFtr &&
-  answer.slice(-4,-2).toString() == calcCRC(answer.slice(2,-4)).toString()
-){return true;} else { return false; }
-}
+        answer.slice(-2).toString() == frmFtr &&
+        answer.slice(-4,-2).toString() == calcCRC(answer.slice(2,-4)).toString()
+      ){return true;} else { return false; }
+} // verifyAnswer
 
 class integraAlarm extends Homey.App {
   //	Frame structure
@@ -166,80 +206,68 @@ class integraAlarm extends Homey.App {
     integraAlarm.alarmType = '';    // comes from 0x7E command
     integraAlarm.version = ''; // comes from 0x7E command
 
-    Homey.app.log("Alarm accessible at: " + integraAlarm.ipaddress + " @ " + integraAlarm.ipport);
+    if ( debugEnabled ) {
+      Homey.app.log("Alarm accessible at: " + integraAlarm.ipaddress + " @ " + integraAlarm.ipport);
+    }
     setTimeout(this.executeCommand,  3000, this.getCommand_ethminfo()); // read alarm info
-//    setTimeout(this.executeCommand,  3000, this.getCommand_arm()); // arm alarm
-//    setTimeout(this.executeCommand,  5000, this.getCommand_armedzones()); // read armed zones
-//    setTimeout(this.executeCommand,  9000, this.getCommand_disarm()); // disarm alarm
 
     // monitor alarm status
-    this.logEveryNSeconds(0);
+    this.monitorAlarmStatus();
 
     // register listener for ACTION "disarm" FlowCard
-    let disarmAlarm = new Homey.FlowCardAction('disarm')
-    .register()
-    .registerRunListener(( args, state ) => {
-      Homey.app.log("Disarm alarm. Args =" + args);
-      Homey.app.log(" - Arguments =" + args);
-      Homey.app.log(" - State =" + state);
-      this.executeCommand(this.getCommand_disarm());
-      //			Homey.setCapabilityValue("homealarm_state", "disarmed", true)
-      let isDisarmed = true; // true or false
-      return Promise.resolve( isDisarmed );
-  });
+    new Homey.FlowCardAction('actionDisarmAlarm')
+      .register()
+      .registerRunListener( () => {
+        this.executeCommand(this.getCommand_disarm());
+        return Promise.resolve( true );
+      }
+    );
 
     // register listener for ACTION "arm" FlowCard
-    let armAlarm = new Homey.FlowCardAction('arm')
-    .register()
-    .registerRunListener(( args, state ) => {
-    Homey.app.log("Arm alarm");
-    Homey.app.log(" - Arguments =" + args);
-    Homey.app.log(" - State =" + state);
-    this.executeCommand(this.getCommand_arm());
-    let isArmed = true; // true or false
-    return Promise.resolve( isArmed );
-  });
+    new Homey.FlowCardAction('actionArmAlarm')
+      .register()
+      .registerRunListener(() => {
+        this.executeCommand(this.getCommand_arm(1));
+        return Promise.resolve( true );
+      }
+    );
 
-    // register listener for CONDITION "is_armed"
-    let stateAlarm = new Homey.FlowCardCondition('is_armed')
+    // register listener for CONDITION "conditionIsArmed"
+    new Homey.FlowCardCondition('conditionIsArmed')
     .register()
-    .registerRunListener(( args, state ) => {
-      let isArmed = false; // true or false
-      return Promise.resolve( isArmed );
+    .registerRunListener(() => {
+      return Promise.resolve( integraAlarm.conditionIsArmed );
     });
-  } // end onInit
 
-  // // calculate CRC for given cmd according to satel specifications
-  // // https://www.satel.pl/en/download/instrukcje/ethm1_op_pl_1.07.pdf
-  // calculateFrameCrc(hex){
-  //
-  //   let crc = "0x147A";
-  //   // loop over bytearray elements
-  //   for (var b of hexToByteArray(hex)){
-  //     // rotate 1 bit left
-  //     crc = (( crc << 1) & 0xFFFF) | ( crc & 0x8000) >> 15;
-  //     // xOR with 0xFFFF
-  //     crc = crc ^ 0xFFFF;
-  //     // crc + crc.high + b
-  //     crc = (crc + (crc >> 8) + b) & 0xFFFF;
-  //   }
-  //   return dec2hex(crc);
-  // } // calculateFrameCrc
+    // register listener for TRIGGER "triggerGotArmed"
+    integraAlarm.triggerGotArmed = new Homey.FlowCardTrigger('triggerGotArmed');
+    integraAlarm.triggerGotArmed
+        .registerRunListener((  ) => {
+            // If true, this flow should run
+            return Promise.resolve( true );
+        }).register();
+
+    // register listener for TRIGGER "triggerGotDisarmed"
+    integraAlarm.triggerGotDisarmed = new Homey.FlowCardTrigger('triggerGotDisarmed');
+    integraAlarm.triggerGotDisarmed
+        .registerRunListener((  ) => {
+            // If true, this flow should run
+            return Promise.resolve( true );
+        }).register();
+   } // end onInit
 
   // loop for continuously monitoring alarm state
-  logEveryNSeconds(i) {
+  monitorAlarmStatus(i=0) {
       setTimeout(() => {
-          Homey.app.log('*** Monitor alarm status:', i);
-          Homey.app.log('Armed zones: ', this.executeCommand(this.getCommand_armedzones()));
-          this.logEveryNSeconds(++i);
+          if ( debugEnabled ) {
+            Homey.app.log('*** Monitor alarm status:', i);
+          }
+          this.executeCommand(this.getCommand_armedzones());
+          this.monitorAlarmStatus(++i);
       }, 5000);
   }
 
   executeCommand(input){
-    // Homey.app.log("--------------------------------");
-    // Homey.app.log("INPUT: " + input)
-    // Homey.app.log("Real command: " + input.slice(2,-2));
-
     // create socket
     let net = require('net');
     let alarm = new net.Socket();
@@ -255,31 +283,45 @@ class integraAlarm extends Homey.App {
     // upon receiving data from the alarm
     // receiving data from a socket is asynchronous, so a return value is not properly set
     alarm.on('data', function(data) {
-      Homey.app.log("Received data from alarm...");
+      if ( debugEnabled ) {
+        Homey.app.log("Received data from alarm...");
+      }
       let answer = ETHM1AnswerToArray(data);
       if (verifyAnswer(answer)){
-        Homey.app.log(" - valid answer");
+        if ( debugEnabled ) {
+          Homey.app.log(" - valid answer: " + answer);
+        }
       } else {
-        Homey.app.log(" - incorrect answer");
+        if ( debugEnabled ) {
+          Homey.app.log(" - incorrect answer:" + answer);
+        }
       }
       let payload = answer.slice(2,-4);
-      Homey.app.log(" - payload: " + payload);
+      if ( debugEnabled ) {
+        Homey.app.log(" - payload: " + payload);
+      }
       parsePayload(payload);
       alarm.destroy();
       return answer;
     });
     alarm.on('error', function(err) {
-      Homey.app.log('Error: ' + err);
+      if ( debugEnabled ) {
+        Homey.app.log('Error: ' + err);
+      }
       alarm.destroy();
     });
     alarm.on('timeout', function() {
-      Homey.app.log('Connection timed out.');
+      if ( debugEnabled ) {
+        Homey.app.log('Connection timed out.');
+      }
       alarm.destroy();
       alarm.end();
     });
     alarm.on('close', function() {
-      Homey.app.log('Connection to ' + integraAlarm.ipaddress + ' closed.');
-      Homey.app.log(''); // empty line
+      if ( debugEnabled ) {
+        Homey.app.log('Connection to ' + integraAlarm.ipaddress + ' closed.');
+        Homey.app.log(''); // empty line
+      }
     });
   }// end executeCommand
 
@@ -309,11 +351,9 @@ class integraAlarm extends Homey.App {
     return this.createFrameArray(["0A"]);
   }
   getCommand_arm(mode=0) {
-    Homey.app.log("Execute command Arm2 with delay (0x8" + mode + ")");
     return this.armAction(mode);
   }
   getCommand_disarm() {
-    Homey.app.log("Execute command Disarm2 (0x84)");
     return this.armAction(4);
   }
   getCommand_selfinfo(){

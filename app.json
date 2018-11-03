@@ -1,13 +1,14 @@
 {
   "id": "org.myalarm.integra",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "compatibility": ">=1.5.0",
   "sdk": 2,
   "name": {
     "en": "Integra Alarm"
   },
   "description": {
-    "en": "Control your Satel Integra alarm via the ETHM-1 module"
+    "en": "Control your Satel Integra alarm via the ETHM-1 module",
+    "nl": "Aansturing van Satel Integra alarm via ETHM-1 module"
   },
   "category": [
     "security"
@@ -30,37 +31,42 @@
   "flow": {
     "triggers": [
       {
-        "id": "gotArmed",
+        "id": "triggerGotArmed",
         "title": {
-          "en": "Alarm was armed"
+          "en": "Alarm was armed",
+          "nl": "Alarm werd ingeschakeld"
         }
       },
       {
-        "id": "gotDisarmed",
+        "id": "triggerGotDisarmed",
         "title": {
-          "en": "Alarm was disarmed"
+          "en": "Alarm was disarmed",
+          "nl": "Alarm werd uitgeschakeld"
         }
       }
     ],
     "conditions": [
       {
-        "id": "is_armed",
+        "id": "conditionIsArmed",
         "title": {
-          "en": "Alarm !{{is|isn't}} armed"
+          "en": "Alarm !{{is|isn't}} armed",
+          "nl": "Alarm is !{{in|uit}}geschakeld"
         }
       }
     ],
     "actions": [
       {
-        "id": "arm",
+        "id": "actionArmAlarm",
         "title": {
-          "en": "Arm"
+          "en": "Arm alarm",
+          "nl": "Schakel alarm in"
         }
       },
       {
-        "id": "disarm",
+        "id": "actionDisarmAlarm",
         "title": {
-          "en": "Disarm"
+          "en": "Disarm alarm",
+          "nl": "Schakel alarm uit"
         }
       }
     ]

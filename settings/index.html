@@ -24,7 +24,7 @@
           <legend>ETHM-1 module settings</legend>
 
           <div class="field row">
-            <label for="ipaddress">IP Address</label>
+            <label for="ipaddress">IP Address / hostname</label>
             <input id="ipaddress" type="text" value="" />
           </div>
           <div class="field row">
@@ -58,7 +58,7 @@
             <input id="code" type="password" value="" />
           </div>
         </fieldset>
-
+        Note: Restart the App after you have saved these settings. Working on it to make it auto-activate the changes.
         <button id="save" class="right">Save changes</button>
 
         <script type="text/javascript">
@@ -74,23 +74,31 @@
             var saveElement      = document.getElementById('save');
 
             Homey.get('ipaddress', function( err, data ) {
-               if( err ) return Homey.alert( err );
+              if( err || data == null) {
+                ipaddressElement.value = "192.168.x.y";
+              } else {
                ipaddressElement.value = data;
+             }
             });
 
             Homey.get('ipport', function( err, data ) {
-               if( err ) return Homey.alert( err );
-               ipportElement.value = data;
+              if( err || data == null) {
+                ipportElement.value = "7094";
+              } else {
+                ipportElement.value = data;
+              }
             });
 
             Homey.get('code', function( err, data ) {
-               if( err ) return Homey.alert( err );
+              if( err || data == null) {
+                return false;
+              } else {
                usercodeElement.value = data;
+             }
             });
             Homey.get('alarmType', function( err, data ) {
                if( err || data == null) {
                  alarmtypeElement.textContent = "Could not connect/recognize your Integra alarm type."
-                 return Homey.alert( err );
                } else {
                  alarmtypeElement.textContent = data;
                }
@@ -98,7 +106,6 @@
             Homey.get('alarmVers', function( err, data ) {
                if( err || data == null) {
                  alarmversElement.textContent = "Could not connect/recognize your Integra alarm type."
-                 return Homey.alert( err );
                } else {
                  alarmversElement.textContent = data;
                }
@@ -106,12 +113,12 @@
             Homey.get('alarmLang', function( err, data ) {
                if( err || data == null) {
                  alarmlangElement.textContent = "Could not connect/recognize your Integra alarm type."
-                 return Homey.alert( err );
                } else {
                  alarmlangElement.textContent = data;
                }
             });
 
+            // what to do when the Save button is clicked.
             saveElement.addEventListener('click', function(e) {
               Homey.set('ipaddress', ipaddressElement.value, function( err ){
                   if( err ) return Homey.alert( err );
@@ -122,9 +129,9 @@
               Homey.set('code', usercodeElement.value, function( err ){
                   if( err ) return Homey.alert( err );
               });
-              integraAlarm.onInit();
             });
           Homey.ready();
+
         }
         </script>
     </body>

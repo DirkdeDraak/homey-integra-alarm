@@ -5,7 +5,7 @@
 
 'use strict';
 
-var debugEnabled = false;
+const debugEnabled = false;
 
 const Homey = require('homey');
 
@@ -25,8 +25,9 @@ function hex2bin(hex){
 
 // convert array of bytes to decimal numbers
 function byteArrayToDec(ary){
-  for (var bytes = [], c = 0;c < ary.length; c += 1){
-  bytes.push(String.fromCharCode("0x" + ary[c]));
+  let bytes = [];
+  for (let c = 0;c < ary.length; c += 1){
+    bytes.push(String.fromCharCode("0x" + ary[c]));
   }
   return bytes;
 } // byteArrayToDec
@@ -35,7 +36,8 @@ function byteArrayToDec(ary){
 function stringToHexBytes(str,len,fill){
   if ( str.length < len*2 )
     str = str + fill.repeat(len*2-str.length);
-  for (var bytes=[], c=0; c<str.length; c+=2){
+  let bytes = [];
+  for (let c=0; c<str.length; c+=2){
     let blk = str.substr(c,2);
     bytes.push(blk);
   }
@@ -49,18 +51,18 @@ function compareArrays( arrA, arrB ){
 
     //slice so we do not effect the orginal
     //sort makes sure they are in order
-    var cA = arrA.slice().sort();
-    var cB = arrB.slice().sort();
+    let cA = arrA.slice().sort();
+    let cB = arrB.slice().sort();
 
-    for(var i=0;i<cA.length;i++){
+    for(let i=0;i<cA.length;i++){
          if(cA[i]!==cB[i]) return false;
     }
     return true;
 } // compareArrays
 
 function parsePayload(payload){
-  let cmd = payload[0];
-  let answer = payload.slice(1);
+  const cmd = payload[0];
+  const answer = payload.slice(1);
   if ( debugEnabled ) {
     Homey.app.log("   - command: " + cmd);
     Homey.app.log("   - answer : " + answer);
@@ -87,7 +89,7 @@ function parsePayload(payload){
         Homey.ManagerSettings.set('alarmType', integraAlarm.alarmType);
         // 11 bytes for the version
         let version_array = byteArrayToDec(answer.slice(1,12));
-        let r= function(p,c){return p.replace(/%s/,c);};
+        let r = function(p,c){return p.replace(/%s/,c);};
         integraAlarm.alarmVers = version_array.reduce(r, "%s.%s%s %s%s%s%s-%s%s-%s%s");
         // PLACEHOLDER to store this in settings and show in settings page
         if ( debugEnabled ) {
@@ -118,9 +120,9 @@ function parsePayload(payload){
         }
 
         let p = 0;
-        for (var plist of answer){
+        for (let plist of answer){
           let binarray = Array.from(hex2bin(plist));
-          for (let i=binarray.length-1; i>=0; --i) {
+          for (let i = binarray.length-1; i>=0; --i) {
             p++;
             if ( binarray[i] == 1){
               activepartitions.push(p);
@@ -166,7 +168,7 @@ function parsePayload(payload){
 function calcCRC(array){
   let crc = "0x147A";
   // loop over decimal version of hex
-  for (var b of array){
+  for (let b of array){
     // rotate 1 bit left
     crc = (( crc << 1 ) & 0xFFFF ) | ( crc & 0x8000 ) >> 15;
     // xOR with 0xFFFF
@@ -182,8 +184,8 @@ function ETHM1AnswerToArray(answer){
 } // ETHM1AnswerToArray
 
 function verifyAnswer(answer){
-  let frmHdr = 'FE,FE';
-  let frmFtr = 'FE,0D';
+  const frmHdr = 'FE,FE';
+  const frmFtr = 'FE,0D';
   if ( answer.slice(0,2).toString() == frmHdr &&
         answer.slice(-2).toString() == frmFtr &&
         answer.slice(-4,-2).toString() == calcCRC(answer.slice(2,-4)).toString()
@@ -269,8 +271,8 @@ class integraAlarm extends Homey.App {
 
   executeCommand(input){
     // create socket
-    let net = require('net');
-    let alarm = new net.Socket();
+    const net = require('net');
+    const alarm = new net.Socket();
     alarm.setEncoding('binary');
     // set timeout to 750 ms (for sending & receiving data)
     alarm.setTimeout(750);
@@ -327,8 +329,8 @@ class integraAlarm extends Homey.App {
 
  createFrameArray(cmd){
    // cmd must be array
-   let frmHdr = ['FE','FE'];
-   let frmFtr = ['FE','0D'];
+   const frmHdr = ['FE','FE'];
+   const frmFtr = ['FE','0D'];
    let crc = calcCRC(cmd);
    return frmHdr.concat(cmd).concat(crc).concat(frmFtr);
  }

@@ -1,138 +1,14 @@
-<!doctype html>
 <html>
     <head>
-
         <!-- The '/homey.js' script must be included in your settings view to work -->
         <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-
     </head>
     <body>
-
-        <h1 data-i18n="settings.title">
-            <!--
-            This field will automatically be filled by a translated string with key 'settings.title'.
-            Read more about translations at Internationalization.
-            -->
-        </h1>
-        <p data-i18n="settings.intro">
-            <!--
-            This field will also be translated
-            -->
-        </p>
-
-        <fieldset>
-          <legend>ETHM-1 module settings</legend>
-
-          <div class="field row">
-            <label for="ipaddress">IP Address / hostname</label>
-            <input id="ipaddress" type="text" value="" />
-          </div>
-          <div class="field row">
-            <label for="ipport">IP Port number</label>
-            <input id="ipport" type="text" value="7094" /> (default: 7094)
-          </div>
-          <!--
-          <div class="field row">
-            <label for="pollinginterval">Polling interval (ms)</label>
-            <input id="pollinginterval" type="text" value="" /> (default: 5000)
-          </div>
-          -->
-        </fieldset>
-        <fieldset>
-          <legend>General alarm settings</legend>
-          <div class="field row">
-            <label for="alarmType">Recognized as</label>
-            <span id="alarmType"></div>
-          </div>
-          <div class="field row">
-            <label for="alarmVers">Integra version</label>
-            <span id="alarmVers"></div>
-          </div>
-          <div class="field row">
-            <label for="alarmLang">Language</label>
-            <span id="alarmLang"></div>
-          </div>
-
-          <div class="field row">
-            <label for="code">Security code<br />Arm/disarm code</label>
-            <input id="code" type="password" value="" />
-          </div>
-        </fieldset>
-        Note: Restart the App after you have saved these settings. Working on it to make it auto-activate the changes.
-        <button id="save" class="right">Save changes</button>
-
-        <script type="text/javascript">
-
-        // a method named 'onHomeyReady' must be present in your code
-        function onHomeyReady( Homey ){
-            var ipaddressElement = document.getElementById('ipaddress');
-            var ipportElement    = document.getElementById('ipport');
-            var usercodeElement  = document.getElementById('code');
-            var alarmtypeElement = document.getElementById('alarmType');
-            var alarmversElement = document.getElementById('alarmVers');
-            var alarmlangElement = document.getElementById('alarmLang');
-            var saveElement      = document.getElementById('save');
-
-            Homey.get('ipaddress', function( err, data ) {
-              if( err || data == null) {
-                ipaddressElement.value = "192.168.x.y";
-              } else {
-               ipaddressElement.value = data;
-             }
-            });
-
-            Homey.get('ipport', function( err, data ) {
-              if( err || data == null) {
-                ipportElement.value = "7094";
-              } else {
-                ipportElement.value = data;
-              }
-            });
-
-            Homey.get('code', function( err, data ) {
-              if( err || data == null) {
-                return false;
-              } else {
-               usercodeElement.value = data;
-             }
-            });
-            Homey.get('alarmType', function( err, data ) {
-               if( err || data == null) {
-                 alarmtypeElement.textContent = "Could not connect/recognize your Integra alarm type."
-               } else {
-                 alarmtypeElement.textContent = data;
-               }
-            });
-            Homey.get('alarmVers', function( err, data ) {
-               if( err || data == null) {
-                 alarmversElement.textContent = "Could not connect/recognize your Integra alarm type."
-               } else {
-                 alarmversElement.textContent = data;
-               }
-            });
-            Homey.get('alarmLang', function( err, data ) {
-               if( err || data == null) {
-                 alarmlangElement.textContent = "Could not connect/recognize your Integra alarm type."
-               } else {
-                 alarmlangElement.textContent = data;
-               }
-            });
-
-            // what to do when the Save button is clicked.
-            saveElement.addEventListener('click', function(e) {
-              Homey.set('ipaddress', ipaddressElement.value, function( err ){
-                  if( err ) return Homey.alert( err );
-              });
-              Homey.set('ipport', ipportElement.value, function( err ){
-                  if( err ) return Homey.alert( err );
-              });
-              Homey.set('code', usercodeElement.value, function( err ){
-                  if( err ) return Homey.alert( err );
-              });
-            });
-          Homey.ready();
-
-        }
-        </script>
+      See Device for settings.
+      <script type="text/javascript">
+         function onHomeyReady( Homey ){
+            Homey.ready();
+         }
+      </script>
     </body>
 </html>

@@ -1,89 +1,201 @@
 {
-  "id": "org.myalarm.integra",
-  "version": "0.0.9",
-  "compatibility": ">=1.5.0",
-  "sdk": 2,
-  "name": {
-    "en": "Integra Alarm"
-  },
-  "description": {
-    "en": "Control your Satel Integra alarm via the ETHM-1 module",
-    "nl": "Aansturing van Satel Integra alarm via ETHM-1 module"
-  },
-  "category": [
-    "security"
-  ],
-  "permissions": [],
-  "images": {
-    "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
-  },
-  "author": {
-    "name": "Fokko Masselink",
-    "email": "dirkdedraak@gmail.com"
-  },
-  "settings": [
-     {
-         "title": "Satel Integra",
-         "subtitle": "ETHM-1 module"
-      }
-  ],
-  "flow": {
-    "triggers": [
-      {
-        "id": "triggerGotArmed",
-        "title": {
-          "en": "Alarm was armed",
-          "nl": "Alarm werd ingeschakeld"
-        }
-      },
-      {
-        "id": "triggerGotDisarmed",
-        "title": {
-          "en": "Alarm was disarmed",
-          "nl": "Alarm werd uitgeschakeld"
-        }
-      }
+    "id": "org.myalarm.integra",
+    "version": "1.0.0",
+    "compatibility": ">=1.5.0",
+    "sdk": 2,
+    "name": {
+        "en": "Integra alarm",
+        "nl": "Integra alarm"
+    },
+    "description": {
+        "en": "Control Satel Integra alarm via the ETHM-1 module",
+        "nl": "Aansturing van Satel Integra alarm via ETHM-1 module"
+    },
+    "category": [
+        "security"
     ],
-    "conditions": [
-      {
-        "id": "conditionIsArmed",
-        "title": {
-          "en": "Alarm !{{is|isn't}} armed",
-          "nl": "Alarm is !{{in|uit}}geschakeld"
+    "permissions": [],
+    "images": {
+        "large": "/assets/images/large.png",
+        "small": "/assets/images/small.png"
+    },
+    "author": {
+        "name": "Fokko Masselink",
+        "email": "dirkdedraak@gmail.com"
+    },
+    "flow": {
+        "triggers": [{
+                "id": "triggerGotArmed",
+                "title": {
+                    "en": "Alarm was armed",
+                    "nl": "Alarm werd ingeschakeld"
+                }
+            },
+            {
+                "id": "triggerGotDisarmed",
+                "title": {
+                    "en": "Alarm was disarmed",
+                    "nl": "Alarm werd uitgeschakeld"
+                }
+            }
+        ],
+        "conditions": [{
+            "id": "conditionIsArmed",
+            "title": {
+                "en": "Alarm !{{is|isn't}} armed",
+                "nl": "Alarm is !{{in|uit}}geschakeld"
+            }
+        }],
+        "actions": [{
+                "id": "actionArmAlarm",
+                "title": {
+                    "en": "Arm alarm",
+                    "nl": "Schakel alarm in"
+                }
+            },
+            {
+                "id": "actionDisarmAlarm",
+                "title": {
+                    "en": "Disarm alarm",
+                    "nl": "Schakel alarm uit"
+                }
+            }
+        ]
+    },
+    "drivers": [{
+        "id": "satelIntegra",
+        "class": "homealarm",
+        "capabilities": ["onoff"],
+        "name": {
+            "en": "Satel Integra Driver",
+            "nl": "Satel Integra Aansturing"
+        },
+        "images": {
+            "large": "/drivers/satelIntegra/assets/images/large.png",
+            "small": "/drivers/satelIntegra/assets/images/small.png"
+        },
+        "settings": [{
+            "type": "group",
+            "label": {
+                "en": "Satel Integra alarm settings.",
+                "nl": "Satel Integra alarm instellingen."
+            },
+            "children": [{
+                    "id": "alarmaddr",
+                    "type": "text",
+                    "label": {
+                        "en": "IP address / hostname:",
+                        "nl": "IP adres / hostnaam:"
+                    },
+                    "value": "192.168.1.x",
+                    "hint": {
+                        "en": "Provide the IP address or hostname here of the ETHM-1 module.",
+                        "nl": "Vul hier het IP adres of de hostnaam van de ETHM-1 module in."
+                    }
+                },
+                {
+                    "id": "alarmport",
+                    "type": "number",
+                    "label": {
+                        "en": "Port number:",
+                        "nl": "Poort nummer:"
+                    },
+                    "value": 7094,
+                    "hint": {
+                        "en": "The default port number is 7094.",
+                        "nl": "Het standaard poort nummer is 7094."
+                    }
+                },
+                {
+                    "id": "alarmcode",
+                    "type": "number",
+                    "label": {
+                        "en": "User code",
+                        "nl": "Gebruikerscode"
+                    },
+                    "value": 1234,
+                    "hint": {
+                        "en": "User code that can arm/disarm the alarm.",
+                        "nl": "Gebruikerscode waarmee het alarm in/uitgeschakeld kan worden."
+                    }
+                },
+                {
+                    "id": "alarmpart",
+                    "type": "text",
+                    "label": {
+                        "en": "Partitions to arm",
+                        "nl": "Partities om te activeren"
+                    },
+                    "value": "1",
+                    "hint": {
+                        "en": "The partition number(s) that should be armed/disarmed. Separate with commas. Default: 1.",
+                        "nl": "De partitie(s) die in/uitgeschakeld moeten worden. Scheid met komma's. Default: 1."
+                    }
+                },
+                {
+                    "id": "alarmpoll",
+                    "type": "number",
+                    "label": {
+                        "en": "Polling interval (ms)",
+                        "nl": "Monitor interval (ms)"
+                    },
+                    "value": 5000,
+                    "hint": {
+                        "en": "Interval in milliseconds to poll the current status of the alarm. Default: 5000.",
+                        "nl": "Interval in milliseconden om de huidige status van het alarm uit te lezen. Default: 5000."
+                    }
+                },
+                {
+                    "id": "alarmtype",
+                    "type": "label",
+                    "label": {
+                        "en": "Alarm type detected:",
+                        "nl": "Alarm type gedetecteerd:"
+                    },
+                    "value": "?"
+                },
+                {
+                    "id": "alarmvers",
+                    "type": "label",
+                    "label": {
+                        "en": "Alarm version detected",
+                        "nl": "Alarm versie gedetecteerd:"
+                    },
+                    "value": "?"
+                },
+                {
+                    "id": "alarmlang",
+                    "type": "label",
+                    "label": {
+                        "en": "Alarm language detected:",
+                        "nl": "Alarm taal instelling gedetecteerd:"
+                    },
+                    "value": "?"
+                }
+            ]
+        }],
+        "pair": [{
+                "id": "list_devices",
+                "template": "list_devices",
+                "navigation": {
+                    "next": "add_devices"
+                }
+            },
+            {
+                "id": "add_devices",
+                "template": "add_devices"
+            }
+        ],
+        "mobile": {
+            "components": [{
+                    "id": "icon",
+                    "capabilities": []
+                },
+                {
+                    "id": "toggle",
+                    "capabilities": ["onoff"]
+                }
+            ]
         }
-      }
-    ],
-    "actions": [
-      {
-        "id": "actionArmAlarm",
-        "title": {
-          "en": "Arm alarm",
-          "nl": "Schakel alarm in"
-        }
-      },
-      {
-        "id": "actionDisarmAlarm",
-        "title": {
-          "en": "Disarm alarm",
-          "nl": "Schakel alarm uit"
-        }
-      }
-    ]
-  },
-  "drivers": [
-    {
-      "id": "my_driver",
-      "class": "homealarm",
-      "capabilities": [ "onoff" ],
-      "name": {
-          "en": "Satel Integra Driver",
-          "nl": "Satel Integra Driver"
-      },
-      "images": {
-          "large": "/drivers/my_driver/assets/images/large.png",
-          "small": "/drivers/my_driver/assets/images/small.png"
-      }
-    }
-  ]
+    }]
 }

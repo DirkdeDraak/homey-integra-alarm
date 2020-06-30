@@ -1,9 +1,14 @@
+# 2020 update
+As of 2020 I will no longer provide/make any updates to this code, while I no longer own a Satel alarm system.
+
 # Integra Alarm
 
 Control your Satel Integra alarm via the ETHM-1 module from [Homey](https://www.athom.com).
 
 This code is supported under "I'll see what I can do" principles.
 You can download it from GitHub and alter it the way you like it and use it then on your own Homey.
+
+The ETHM-1 protocol description is publicly available at satel.pl (https://www.satel.pl/nl/download/instrukcje/ethm1_op_int_2020-03-05_4f512412.pdf)
 
 Code repository: https://github.com/DirkdeDraak/homey-integra-alarm
 
